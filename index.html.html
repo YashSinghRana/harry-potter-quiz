@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harry Potter Hinglish Movie Quiz</title>
+  <style>
+    :root { --ink:#1c1720; --cream:#fffaf0; --paper:#fffdf7; --wine:#5d1427; --gold:#d49b28; --blue:#244b67; --muted:#716a67; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); font:16px/1.5 Georgia, 'Times New Roman', serif; background:radial-gradient(circle at 15% 8%, #fff7da 0, transparent 25rem), linear-gradient(135deg,#eee0bf,#e5d1a4); }
+    .wrap { width:min(900px, calc(100% - 28px)); margin:34px auto 64px; }
+    .hero { color:#fffaf0; padding:clamp(26px,6vw,58px); border-radius:20px 20px 5px 5px; text-align:center; background:linear-gradient(135deg,rgba(21,16,30,.94),rgba(93,20,39,.95)), repeating-linear-gradient(45deg,transparent 0 12px,rgba(255,255,255,.025) 12px 13px); box-shadow:0 14px 35px rgba(55,35,21,.22); }
+    .bolt { font:2.1rem/1 Arial,sans-serif; color:var(--gold); text-shadow:0 0 16px rgba(218,168,52,.55); }
+    h1 { margin:.25rem 0 .5rem; font-size:clamp(2rem,7vw,3.8rem); letter-spacing:.02em; line-height:1.1; }
+    .hero p { margin:0; font-family:system-ui,sans-serif; opacity:.9; }
+    .form-card { background:var(--paper); padding:clamp(20px,5vw,46px); box-shadow:0 12px 32px rgba(55,35,21,.18); }
+    .notice { display:flex; gap:10px; align-items:center; margin:0 0 30px; padding:14px 16px; background:#fff4cc; border-left:4px solid var(--gold); font-family:system-ui,sans-serif; color:#5c491e; }
+    .question { margin:0 0 26px; padding:21px; background:#fff; border:1px solid #e8dfcf; border-radius:11px; box-shadow:0 2px 7px rgba(51,39,22,.04); }
+    .question.unanswered { border-color:#b8334f; box-shadow:0 0 0 3px #f9e1e7; }
+    legend { width:100%; padding:0; font-weight:700; font-size:1.08rem; }
+    .number { display:inline-grid; place-items:center; width:29px; height:29px; margin-right:9px; border-radius:50%; color:#fff; background:var(--wine); font:700 .87rem system-ui,sans-serif; vertical-align:2px; }
+    .options { display:grid; gap:9px; margin-top:17px; }
+    label.option { display:flex; gap:12px; align-items:center; padding:11px 13px; cursor:pointer; font-family:system-ui,sans-serif; border:1px solid #e8e1d7; border-radius:8px; transition:.15s ease; }
+    label.option:hover { background:#fff8e8; border-color:#d6b260; }
+    input { accent-color:var(--wine); width:17px; height:17px; flex:none; }
+    .actions { position:sticky; bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:15px; padding:16px 0 0; background:linear-gradient(transparent, var(--paper) 24%); font-family:system-ui,sans-serif; }
+    #count { color:var(--muted); font-size:.9rem; }
+    button { appearance:none; cursor:pointer; border:0; border-radius:8px; padding:14px 22px; color:#fff; font:700 1rem system-ui,sans-serif; background:var(--wine); box-shadow:0 4px 0 #3e0d1a; transition:transform .12s, background .12s; }
+    button:hover { background:#771a31; transform:translateY(-1px); } button:active { transform:translateY(3px); box-shadow:0 1px 0 #3e0d1a; }
+    .result { display:none; margin:0 0 30px; padding:25px; color:#fff9ee; text-align:center; border-radius:12px; background:linear-gradient(135deg,var(--blue),#172d42); box-shadow:0 10px 24px rgba(24,52,75,.2); }
+    .result.show { display:block; animation:appear .35s ease-out; } .result h2 { margin:0; font-size:1.7rem; } .score { margin:8px 0; font:700 clamp(2.4rem,9vw,4.2rem)/1 Georgia,serif; color:#f3c75f; } .result p { margin:0; font-family:system-ui,sans-serif; }
+    .footer { padding:20px; text-align:center; color:#655e5b; font:italic .88rem system-ui,sans-serif; background:#f1e4c9; border-radius:0 0 20px 20px; }
+    @keyframes appear { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+    @media(max-width:560px) { .wrap{width:min(100% - 16px,900px);margin:8px auto 32px}.hero{border-radius:14px 14px 4px 4px}.form-card{padding:17px 13px}.question{padding:17px 14px}.actions{align-items:flex-end}.actions button{padding:13px 15px}.number{margin-right:5px} }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero"><div class="bolt">ϟ</div><h1>Harry Potter Quiz</h1><p>Hinglish Movie Edition · 20 Questions · 8 Movies</p></header>
+    <form id="quiz" class="form-card">
+      <div id="result" class="result" role="status" aria-live="polite"></div>
+      <p class="notice">🪄 Apna wand ready rakho! Har question ka ek answer select karo, phir submit karo.</p>
+      <div id="questions"></div>
+      <div class="actions"><span id="count">0 / 20 answered</span><button type="submit">Submit Quiz ✨</button></div>
+    </form>
+    <footer class="footer">Made for a magical movie night — Mischief managed.</footer>
+  </main>
+  <script>
+    const quiz = [
+      ['Harry ko Hogwarts ka admission letter kaun lekar aaya tha?', ['Dumbledore','Hagrid','McGonagall','Sirius Black'], 1],
+      ['Harry ka Hogwarts mein house kaunsa tha?', ['Slytherin','Ravenclaw','Gryffindor','Hufflepuff'], 2],
+      ['Ron Weasley ke pet rat ka naam kya tha?', ['Scabbers','Crookshanks','Trevor','Fang'], 0],
+      ['Hermione ke parents kya karte the?', ['Teachers','Doctors','Dentists','Lawyers'], 2],
+      ['Harry ka famous Quidditch position kya tha?', ['Keeper','Beater','Chaser','Seeker'], 3],
+      ['Voldemort ke snake ka naam kya tha?', ['Nagini','Aragog','Norbert','Buckbeak'], 0],
+      ["Harry ko Marauder's Map kisne diya tha?", ['Dumbledore','Fred & George','Sirius Black','Lupin'], 1],
+      ['Triwizard Tournament mein Hogwarts ke champions kaun bane the?', ['Cedric Diggory aur Harry Potter','Ron Weasley aur Harry Potter','Draco Malfoy aur Cedric Diggory','Harry Potter aur Hermione Granger'], 0],
+      ['Harry ko Patronus spell karne mein kisne help ki?', ['Snape','Lupin','Sirius','Dumbledore'], 1],
+      ['Dumbledore ki death kisne ki thi?', ['Voldemort','Bellatrix Lestrange','Draco Malfoy','Snape'], 3],
+      ['Dumbledore ki Army (D.A.) kis purpose ke liye banayi gayi thi?', ['Quidditch practice','Dark Arts se defence practice','Voldemort ko summon karne ke liye','Hogwarts chhodne ke liye'], 1],
+      ['Harry ke forehead par lightning-shaped scar kis wajah se tha?', ['Quidditch accident','Voldemort ke curse ki wajah se','Potion accident','Dragon attack'], 1],
+      ['Horcrux destroy karne ke liye generally kya use kiya ja sakta tha?', ['Normal wand','Basilisk venom','Chocolate Frog','Floo Powder'], 1],
+      ['Harry ne apne haath se kaunsa Horcrux destroy kiya?', ["Tom Riddle's Diary","Hufflepuff's Cup","Slytherin's Locket","Ravenclaw's Diadem"], 0],
+      ["Slytherin's Locket ko kisne destroy kiya tha?", ['Harry','Ron','Hermione','Neville'], 1],
+      ['Sirius Black ko kisne maara tha?', ['Bellatrix Lestrange','Voldemort','Snape','Lucius Malfoy'], 0],
+      ['Final battle mein Nagini ko kisne maara?', ['Harry','Ron','Neville Longbottom','Hermione'], 2],
+      ['Deathly Hallows mein se kaunsi cheez Harry ke paas aayi thi?', ['Elder Wand','Resurrection Stone','Invisibility Cloak','Goblet of Fire'], 2],
+      ['Snape ka Patronus kaunsa animal tha?', ['Stag','Doe','Wolf','Phoenix'], 1],
+      ['Hogwarts Express pakadne ke liye kaunsa platform use hota hai?', ['Platform 7¾','Platform 8½','Platform 9¾','Platform 10'], 2]
+    ];
+    const questions = document.getElementById('questions'), form = document.getElementById('quiz'), count = document.getElementById('count'), result = document.getElementById('result');
+    const letters = ['A','B','C','D'];
+    questions.innerHTML = quiz.map(([q, opts], i) => `<fieldset class="question" data-q="${i}"><legend><span class="number">${i+1}</span>${q}</legend><div class="options">${opts.map((o,j)=>`<label class="option"><input type="radio" name="q${i}" value="${j}"> <span>${letters[j]}) ${o}</span></label>`).join('')}</div></fieldset>`).join('');
+    function updateCount(){ count.textContent = `${new Set([...form.querySelectorAll('input:checked')].map(x=>x.name)).size} / 20 answered`; }
+    form.addEventListener('change', e => { e.target.closest('.question').classList.remove('unanswered'); updateCount(); });
+    form.addEventListener('submit', e => { e.preventDefault(); const missing = quiz.map((_,i)=>!form.querySelector(`input[name="q${i}"]:checked`) ? i : null).filter(i=>i!==null); document.querySelectorAll('.question').forEach(x=>x.classList.remove('unanswered')); if(missing.length){ missing.forEach(i=>form.querySelector(`[data-q="${i}"]`).classList.add('unanswered')); result.classList.remove('show'); form.querySelector(`[data-q="${missing[0]}"]`).scrollIntoView({behavior:'smooth',block:'center'}); return; } const score = quiz.reduce((n,[,,answer],i)=>n+(+form.querySelector(`input[name="q${i}"]:checked`).value===answer),0); let title,msg; if(score>=18)[title,msg]=['🏆 Headmaster Level!','Outstanding! Tum Hogwarts ke top table par ho.']; else if(score>=15)[title,msg]=['🪄 Certified Potterhead','Magical knowledge bilkul on point hai!']; else if(score>=11)[title,msg]=['⚡ Good Hogwarts Student','Bahut badiya — tum class mein definitely pass ho!']; else if(score>=6)[title,msg]=['🌟 Muggle with Potential','Thodi aur movie-night practice aur tum wizard ban jaoge!']; else [title,msg]=['😂 Proper Muggle Result','Koi baat nahi — rewatch ka perfect excuse mil gaya!']; result.innerHTML=`<h2>${title}</h2><div class="score">${score} / 20</div><p>${msg}</p>`; result.classList.add('show'); result.scrollIntoView({behavior:'smooth',block:'center'}); });
+  </script>
+</body>
+</html>
